@@ -23,7 +23,41 @@ jobs:
           distribution: 'temurin'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.7.1'
+
+      - name: Fix build file
+        working-directory: source
+        run: |
+          cat > build.gradle.kts <<'EOF'
+          plugins {
+              java
+          }
+
+          group = "com.example"
+          version = "1.0.0"
+
+          repositories {
+              maven {
+                  name = "papermc"
+                  url = uri("https://repo.papermc.io/repository/maven-public/")
+              }
+          }
+
+          dependencies {
+              compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+          }
+
+          java {
+              toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+          }
+
+          tasks.withType<JavaCompile>().configureEach {
+              options.encoding = "UTF-8"
+              options.release.set(21)
+          }
+          EOF
 
       - name: Build plugin
         working-directory: source
