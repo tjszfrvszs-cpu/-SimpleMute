@@ -1,0 +1,36 @@
+name: Build SimpleMute
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract source ZIP
+        run: |
+          mkdir source
+          unzip -q SimpleMute-1.0.0-source.zip -d source
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build plugin
+        working-directory: source
+        run: gradle build
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimpleMute
+          path: source/build/libs/*.jar
